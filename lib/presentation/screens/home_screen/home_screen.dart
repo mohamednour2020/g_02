@@ -1,12 +1,14 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:g_02/core/images_path/images_path.dart';
 import 'package:g_02/presentation/screens/profile_screen/profile_screen.dart';
 import 'package:g_02/presentation/widgets/home_card.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  final String email;
+  const MyHomePage({super.key, required this.email});
 
-  final String title;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -28,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: Text(
-          "Food App",
+          widget.email,
           style: TextStyle(color: Colors.white, fontSize: 26),
         ),
         centerTitle: false,
@@ -165,6 +167,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
+            CarouselSlider(
+              options: CarouselOptions(height: 200.0),
+              items: [1,2,3,4,5].map((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                            color: Colors.amber
+                        ),
+                        child: Text('text $i', style: TextStyle(fontSize: 16.0),)
+                    );
+                  },
+                );
+              }).toList(),
+            )
           ],
         ),
       ),
