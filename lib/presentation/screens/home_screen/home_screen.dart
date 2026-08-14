@@ -1,26 +1,25 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:g_02/core/images_path/images_path.dart';
+import 'package:g_02/presentation/cubits/popular_people_cubit/popular_people_cubit.dart';
 import 'package:g_02/presentation/screens/profile_screen/profile_screen.dart';
 import 'package:g_02/presentation/widgets/home_card.dart';
 
 class MyHomePage extends StatefulWidget {
   final String email;
+
   const MyHomePage({super.key, required this.email});
-
-
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    BlocProvider.of<PopularPeopleCubit>(context).getData();
+    super.initState();
   }
 
   @override
@@ -68,124 +67,114 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: ListView(
-          children: [
-            Material(
-              elevation: 1,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.local_convenience_store_rounded,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Column(
-                      mainAxisAlignment: .center,
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          "Deliciuos Resturant",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
+      body: BlocBuilder<PopularPeopleCubit, PopularPeopleState>(
+        builder: (context, state) {
+          return state is PopularPeopleLoading
+              ? Center(child: CircularProgressIndicator())
+              : state is PopularPeopleSuccess
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return Material(
+                        elevation: 1,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 80,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.local_convenience_store_rounded,
+                                  size: 30,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Column(
+                                mainAxisAlignment: .center,
+                                crossAxisAlignment: .start,
+                                children: [
+                                  Text(
+                                    state
+                                            .popularPeopleModel
+                                            .results?[index]
+                                            .name ??
+                                        "",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        state
+                                            .popularPeopleModel
+                                            .results![index]
+                                            .popularity
+                                            .toString(),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        "(230 reviews)",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_bag_outlined,
+                                        color: Colors.deepPurple,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        "(+150 Orders)",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        Row(
-                          children: [
-                            Icon(Icons.star_rounded, color: Colors.amber),
-                            SizedBox(width: 4),
-                            Text(
-                              "4.8",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              "(230 reviews)",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.shopping_bag_outlined,
-                              color: Colors.deepPurple,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              "(+150 Orders)",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  HomeCard(
-                    width: 200,
-                    child: Image.asset(
-                      ImagesPath.natureImage,
-                      fit: BoxFit.fill,
-                    ),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 10);
+                    },
+                    itemCount: state.popularPeopleModel.results!.length,
                   ),
-                  HomeCard(
-                    width: 150,
-                    child: Image.asset(ImagesPath.natureImage),
-                  ),
-                  HomeCard(width: 200, child: Icon(Icons.topic)),
-                  HomeCard(width: 200, child: Icon(Icons.phone_missed)),
-                ],
-              ),
-            ),
-            CarouselSlider(
-              options: CarouselOptions(height: 200.0),
-              items: [1,2,3,4,5].map((i) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
-                        decoration: BoxDecoration(
-                            color: Colors.amber
-                        ),
-                        child: Text('text $i', style: TextStyle(fontSize: 16.0),)
-                    );
-                  },
-                );
-              }).toList(),
-            )
-          ],
-        ),
+                )
+              : Center(child: Text("an error occured"));
+        },
       ),
     );
   }
